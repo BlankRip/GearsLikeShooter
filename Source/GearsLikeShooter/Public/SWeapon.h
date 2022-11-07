@@ -7,6 +7,7 @@
 #include "SWeapon.generated.h"
 
 class USkeletalMeshComponent;
+class UParticleSystem;
 
 UCLASS()
 class GEARSLIKESHOOTER_API ASWeapon : public AActor
@@ -26,6 +27,17 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	USkeletalMeshComponent* meshComp;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Effects")
+	FName muzzleSocketName;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
+	UParticleSystem* muzzleEffect;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
+	UParticleSystem* impactEffect;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Effects")
+	FName traileTargetName;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
+	UParticleSystem* trailEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category="Gun Stats")
 	float damageAmt = 20.f;
