@@ -21,8 +21,16 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable)
+	void Fire();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	USkeletalMeshComponent* meshComp;
+
+	UPROPERTY(EditDefaultsOnly, Category="Gun Stats")
+	float damageAmt = 20.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="GunStats")
+	TSubclassOf<UDamageType> damageType;
 
 public:	
 	// Called every frame
