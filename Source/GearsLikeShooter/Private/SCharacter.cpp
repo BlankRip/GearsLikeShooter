@@ -6,6 +6,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 
+#include "SWeapon.h"
+
 // Sets default values
 ASCharacter::ASCharacter() {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -22,6 +24,7 @@ ASCharacter::ASCharacter() {
 
 	adsFOV = 65.f;
 	adsInterpSpeed = 20.f;
+	weaponAttachSocketName = "WeaponSocket";
 }
 
 // Called when the game starts or when spawned
@@ -29,6 +32,18 @@ void ASCharacter::BeginPlay() {
 	Super::BeginPlay();
 	
 	defaultFOV = cameraComp->FieldOfView;
+
+	if (starterWeaponClass) {
+		FActorSpawnParameters spawnParams;
+		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		currentWeapon = GetWorld()->SpawnActor<ASWeapon>(starterWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, spawnParams);
+		if (currentWeapon) {
+			currentWeapon->SetOwner(this);
+			currentWeapon->AttachToComponent(GetMesh(), 
+				FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+				weaponAttachSocketName);
+		}
+	}
 }
 
 void ASCharacter::MoveForward(float value) {
@@ -53,6 +68,11 @@ void ASCharacter::EnterADS() {
 
 void ASCharacter::ExitADS() {
 	ads = false;
+}
+
+void ASCharacter::StartFire() {
+	if (currentWeapon)
+		currentWeapon->Fire();
 }
 
 // Called every frame
@@ -80,6 +100,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAction("ADS", IE_Pressed, this, &ASCharacter::EnterADS);
 	PlayerInputComponent->BindAction("ADS", IE_Released, this, &ASCharacter::ExitADS);
+
+	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &ASCharacter::StartFire);
 }
 
 FVector ASCharacter::GetPawnViewLocation() const

@@ -11,9 +11,10 @@ class GEARSLIKESHOOTER_API ASProjectileWeapon : public ASWeapon
 {
 	GENERATED_BODY()
 	
-protected:
-	virtual void Fire();
+public:
+	virtual void Fire() override;
 
+protected:
 	UPROPERTY(EditDefaultsOnly, Category="Gun Stats")
 	TSubclassOf<AActor> projectileClass;
 };

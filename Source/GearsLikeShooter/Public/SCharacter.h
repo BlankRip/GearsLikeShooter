@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class ASWeapon;
 
 UCLASS()
 class GEARSLIKESHOOTER_API ASCharacter : public ACharacter
@@ -31,11 +32,20 @@ protected:
 	void EnterADS();
 	void ExitADS();
 
+	void StartFire();
+	//void EndFire();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* cameraComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* springArmComp;
+
+	ASWeapon* currentWeapon;
+	UPROPERTY(EditDefaultsOnly, Category="Player")
+	TSubclassOf<ASWeapon> starterWeaponClass;
+	UPROPERTY(VisibleAnywhere, Category="Player")
+	FName weaponAttachSocketName;
 
 	bool ads;
 	UPROPERTY(EditDefaultsOnly, Category = "Player")

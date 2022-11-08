@@ -8,24 +8,21 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "DrawDebugHelpers.h"
 
+static int32 debugWeaponDrawing = 0;
+FAutoConsoleVariableRef CVar_DebugWeapon(
+	TEXT("COOP.DebugWeapons"),
+	debugWeaponDrawing,
+	TEXT("Draw Debug Lines for Weapons"),
+	ECVF_Cheat);
+
 // Sets default values
 ASWeapon::ASWeapon()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
 	meshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	RootComponent = meshComp;
 
 	muzzleSocketName = "MuzzleSocket";
 	traileTargetName = "Target";
-}
-
-// Called when the game starts or when spawned
-void ASWeapon::BeginPlay()
-{
-	Super::BeginPlay();
-	
 }
 
 void ASWeapon::Fire() {
@@ -52,24 +49,22 @@ void ASWeapon::Fire() {
 			if(impactEffect)
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), impactEffect, hit.ImpactPoint, hit.ImpactNormal.Rotation());
 		}
-		if(muzzleEffect)
-			UGameplayStatics::SpawnEmitterAttached(muzzleEffect, meshComp, muzzleSocketName);
+		PlayFireEffects(trailEndPoint);
 
-		if (trailEffect) {
-			FVector muzzleLoction = meshComp->GetSocketLocation(muzzleSocketName);
-			UParticleSystemComponent* trailComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), trailEffect, muzzleLoction);
-			if (trailComp) {
-				trailComp->SetVectorParameter(traileTargetName, trailEndPoint);
-			}
-		}
-
-		//DrawDebugLine(GetWorld(), eyeLocation, traceEndLocation, FColor::White, false, 1.f, 0, 1.f);
+		if(debugWeaponDrawing > 0)
+			DrawDebugLine(GetWorld(), eyeLocation, traceEndLocation, FColor::White, false, 1.f, 0, 1.f);
 	}
 }
 
-// Called every frame
-void ASWeapon::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
+void ASWeapon::PlayFireEffects(const FVector& trailEndPoint) {
+	if (muzzleEffect)
+		UGameplayStatics::SpawnEmitterAttached(muzzleEffect, meshComp, muzzleSocketName);
 
+	if (trailEffect) {
+		FVector muzzleLoction = meshComp->GetSocketLocation(muzzleSocketName);
+		UParticleSystemComponent* trailComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), trailEffect, muzzleLoction);
+		if (trailComp) {
+			trailComp->SetVectorParameter(traileTargetName, trailEndPoint);
+		}
+	}
+}

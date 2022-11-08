@@ -18,12 +18,11 @@ public:
 	// Sets default values for this actor's properties
 	ASWeapon();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 	UFUNCTION(BlueprintCallable)
 	virtual void Fire();
+
+protected:
+	void PlayFireEffects(const FVector& trailEndPoint);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	USkeletalMeshComponent* meshComp;
@@ -43,9 +42,4 @@ protected:
 	float damageAmt = 20.f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="GunStats")
 	TSubclassOf<UDamageType> damageType;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 };
