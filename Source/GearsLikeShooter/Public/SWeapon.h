@@ -33,7 +33,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
 	UParticleSystem* muzzleEffect;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
-	UParticleSystem* impactEffect;
+	UParticleSystem* defaultImpactEffect;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
+	UParticleSystem* fleshImpactEffect;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Effects")
 	FName traileTargetName;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")

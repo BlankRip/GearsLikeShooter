@@ -6,6 +6,9 @@
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "GearsLikeShooter/GearsLikeShooter.h"
+
 #include "DrawDebugHelpers.h"
 
 static int32 debugWeaponDrawing = 0;
@@ -40,14 +43,29 @@ void ASWeapon::Fire() {
 		querryParams.AddIgnoredActor(owner);
 		querryParams.AddIgnoredActor(this);
 		querryParams.bTraceComplex = true;
+		querryParams.bReturnPhysicalMaterial = true;
 		FHitResult hit;
 		if (GetWorld()->LineTraceSingleByChannel(hit, eyeLocation, traceEndLocation, ECC_Visibility, querryParams)) {
 			AActor* hitActor = hit.GetActor();
 
 			UGameplayStatics::ApplyPointDamage(hitActor, damageAmt, shotDirection, hit, owner->GetInstigatorController(), this, damageType);
 			trailEndPoint = hit.ImpactPoint;
-			if(impactEffect)
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), impactEffect, hit.ImpactPoint, hit.ImpactNormal.Rotation());
+			
+			EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(hit.PhysMaterial.Get());
+			UParticleSystem* selectedEffect = nullptr;
+			switch (surfaceType) {
+				case Surface_FleshDefault:
+					selectedEffect = fleshImpactEffect;
+					break;
+				case Surface_FleshVulnerable:
+					selectedEffect = fleshImpactEffect;
+					break;
+				default:
+					selectedEffect = defaultImpactEffect;
+					break;
+			}
+			if(selectedEffect)
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), selectedEffect, hit.ImpactPoint, hit.ImpactNormal.Rotation());
 		}
 		PlayFireEffects(trailEndPoint);
 
