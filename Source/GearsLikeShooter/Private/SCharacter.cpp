@@ -72,7 +72,12 @@ void ASCharacter::ExitADS() {
 
 void ASCharacter::StartFire() {
 	if (currentWeapon)
-		currentWeapon->Fire();
+		currentWeapon->StartFire();
+}
+
+void ASCharacter::EndFire() {
+	if (currentWeapon)
+		currentWeapon->StopFire();
 }
 
 // Called every frame
@@ -102,6 +107,7 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("ADS", IE_Released, this, &ASCharacter::ExitADS);
 
 	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &ASCharacter::StartFire);
+	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &ASCharacter::EndFire);
 }
 
 FVector ASCharacter::GetPawnViewLocation() const

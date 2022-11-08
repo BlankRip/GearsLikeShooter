@@ -19,10 +19,13 @@ public:
 	// Sets default values for this actor's properties
 	ASWeapon();
 
-	UFUNCTION(BlueprintCallable)
-	virtual void Fire();
+	void StartFire();
+	void StopFire();
 
 protected:
+	virtual void BeginPlay() override;
+	virtual void Fire();
+
 	void PlayImpactEffect(const FHitResult& hit, const EPhysicalSurface& surfaceType);
 	void ApplyDamage(const FHitResult& hit, const FVector& shotDirection, const EPhysicalSurface& surfaceType);
 	void PlayFireEffects(const FVector& trailEndPoint);
@@ -47,6 +50,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="Gun Stats")
 	float baseDamageAmt = 20.f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="GunStats")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Gun Stats")
 	TSubclassOf<UDamageType> damageType;
+
+	FTimerHandle timerHandle_timeBtwShots;
+	float lastShotTime;
+	float timeBtwShots;
+	UPROPERTY(EditDefaultsOnly, Category="Gun Stats")
+	float rateOfFire; //Bullets per minute fired
 };

@@ -33,7 +33,7 @@ protected:
 	void ExitADS();
 
 	void StartFire();
-	//void EndFire();
+	void EndFire();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* cameraComp;

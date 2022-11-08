@@ -8,6 +8,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "GearsLikeShooter/GearsLikeShooter.h"
+#include "TimerManager.h"
 
 #include "DrawDebugHelpers.h"
 
@@ -26,6 +27,22 @@ ASWeapon::ASWeapon()
 
 	muzzleSocketName = "MuzzleSocket";
 	traileTargetName = "Target";
+	rateOfFire = 600.f;
+}
+
+void ASWeapon::BeginPlay() {
+	Super::BeginPlay();
+
+	timeBtwShots = 60/rateOfFire;
+}
+
+void ASWeapon::StartFire() {
+	float firstDely = FMath::Max(lastShotTime + timeBtwShots - GetWorld()->TimeSeconds, 0.f);
+	GetWorldTimerManager().SetTimer(timerHandle_timeBtwShots, this, &ASWeapon::Fire, timeBtwShots, true, firstDely);
+}
+
+void ASWeapon::StopFire() {
+	GetWorldTimerManager().ClearTimer(timerHandle_timeBtwShots);
 }
 
 void ASWeapon::Fire() {
@@ -53,6 +70,7 @@ void ASWeapon::Fire() {
 			trailEndPoint = hit.ImpactPoint;
 		}
 		PlayFireEffects(trailEndPoint);
+		lastShotTime = GetWorld()->TimeSeconds;
 
 		if(debugWeaponDrawing > 0)
 			DrawDebugLine(GetWorld(), eyeLocation, traceEndLocation, FColor::White, false, 1.f, 0, 1.f);
