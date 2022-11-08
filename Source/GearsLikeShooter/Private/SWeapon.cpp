@@ -67,4 +67,11 @@ void ASWeapon::PlayFireEffects(const FVector& trailEndPoint) {
 			trailComp->SetVectorParameter(traileTargetName, trailEndPoint);
 		}
 	}
+
+	APawn* owner = Cast<APawn>(GetOwner());
+	if (owner) {
+		APlayerController* playerController = Cast<APlayerController>(owner->GetController());
+		if (playerController)
+			playerController->ClientPlayCameraShake(fireCamShakeClass);
+	}
 }

@@ -8,6 +8,7 @@
 
 class USkeletalMeshComponent;
 class UParticleSystem;
+//class UCameraShake;
 
 UCLASS()
 class GEARSLIKESHOOTER_API ASWeapon : public AActor
@@ -37,6 +38,8 @@ protected:
 	FName traileTargetName;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
 	UParticleSystem* trailEffect;
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	TSubclassOf<UCameraShakeBase> fireCamShakeClass;
 
 	UPROPERTY(EditDefaultsOnly, Category="Gun Stats")
 	float damageAmt = 20.f;
