@@ -5,6 +5,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GearsLikeShooter/GearsLikeShooter.h"
 
 #include "SWeapon.h"
 
@@ -21,6 +23,8 @@ ASCharacter::ASCharacter() {
 	cameraComp->SetupAttachment(springArmComp);
 
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(Collision_Weapon, ECR_Ignore);
 
 	adsFOV = 65.f;
 	adsInterpSpeed = 20.f;
