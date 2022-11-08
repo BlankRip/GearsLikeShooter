@@ -45,33 +45,46 @@ void ASWeapon::Fire() {
 		querryParams.bTraceComplex = true;
 		querryParams.bReturnPhysicalMaterial = true;
 		FHitResult hit;
-		if (GetWorld()->LineTraceSingleByChannel(hit, eyeLocation, traceEndLocation, ECC_Visibility, querryParams)) {
-			AActor* hitActor = hit.GetActor();
+		if (GetWorld()->LineTraceSingleByChannel(hit, eyeLocation, traceEndLocation, Collision_Weapon, querryParams)) {
 
-			UGameplayStatics::ApplyPointDamage(hitActor, damageAmt, shotDirection, hit, owner->GetInstigatorController(), this, damageType);
-			trailEndPoint = hit.ImpactPoint;
-			
 			EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(hit.PhysMaterial.Get());
-			UParticleSystem* selectedEffect = nullptr;
-			switch (surfaceType) {
-				case Surface_FleshDefault:
-					selectedEffect = fleshImpactEffect;
-					break;
-				case Surface_FleshVulnerable:
-					selectedEffect = fleshImpactEffect;
-					break;
-				default:
-					selectedEffect = defaultImpactEffect;
-					break;
-			}
-			if(selectedEffect)
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), selectedEffect, hit.ImpactPoint, hit.ImpactNormal.Rotation());
+			ApplyDamage(hit, shotDirection, surfaceType);
+			PlayImpactEffect(hit, surfaceType);
+			trailEndPoint = hit.ImpactPoint;
 		}
 		PlayFireEffects(trailEndPoint);
 
 		if(debugWeaponDrawing > 0)
 			DrawDebugLine(GetWorld(), eyeLocation, traceEndLocation, FColor::White, false, 1.f, 0, 1.f);
 	}
+}
+
+void ASWeapon::ApplyDamage(const FHitResult& hit, const FVector& shotDirection, const EPhysicalSurface& surfaceType) {
+	AActor* hitActor = hit.GetActor();
+	if (hitActor) {
+		float currentDamage = baseDamageAmt;
+		if (surfaceType == Surface_FleshVulnerable) {
+			currentDamage *= 3.f;
+		}
+		UGameplayStatics::ApplyPointDamage(hitActor, currentDamage, shotDirection, hit, GetOwner()->GetInstigatorController(), this, damageType);
+	}
+}
+
+void ASWeapon::PlayImpactEffect(const FHitResult& hit, const EPhysicalSurface& surfaceType) {
+	UParticleSystem* selectedEffect = nullptr;
+	switch (surfaceType) {
+	case Surface_FleshDefault:
+		selectedEffect = fleshImpactEffect;
+		break;
+	case Surface_FleshVulnerable:
+		selectedEffect = fleshImpactEffect;
+		break;
+	default:
+		selectedEffect = defaultImpactEffect;
+		break;
+	}
+	if (selectedEffect)
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), selectedEffect, hit.ImpactPoint, hit.ImpactNormal.Rotation());
 }
 
 void ASWeapon::PlayFireEffects(const FVector& trailEndPoint) {

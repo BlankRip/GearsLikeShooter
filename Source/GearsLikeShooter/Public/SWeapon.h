@@ -23,6 +23,8 @@ public:
 	virtual void Fire();
 
 protected:
+	void PlayImpactEffect(const FHitResult& hit, const EPhysicalSurface& surfaceType);
+	void ApplyDamage(const FHitResult& hit, const FVector& shotDirection, const EPhysicalSurface& surfaceType);
 	void PlayFireEffects(const FVector& trailEndPoint);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
@@ -44,7 +46,7 @@ protected:
 	TSubclassOf<UCameraShakeBase> fireCamShakeClass;
 
 	UPROPERTY(EditDefaultsOnly, Category="Gun Stats")
-	float damageAmt = 20.f;
+	float baseDamageAmt = 20.f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="GunStats")
 	TSubclassOf<UDamageType> damageType;
 };
