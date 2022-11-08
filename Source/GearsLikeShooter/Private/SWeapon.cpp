@@ -71,6 +71,5 @@ void ASWeapon::Fire() {
 void ASWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 

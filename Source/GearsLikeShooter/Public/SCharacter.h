@@ -28,11 +28,21 @@ protected:
 	void BeginCrouch();
 	void EndCrouch();
 
+	void EnterADS();
+	void ExitADS();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* cameraComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* springArmComp;
+
+	bool ads;
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	float adsFOV;
+	UPROPERTY(EditDefaultsOnly, Category = "Player", meta=(ClampMin = 0.1f, ClampMax = 100.f))
+	float adsInterpSpeed;
+	float defaultFOV;
 
 public:	
 	// Called every frame

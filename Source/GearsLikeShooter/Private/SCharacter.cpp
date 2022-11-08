@@ -19,12 +19,16 @@ ASCharacter::ASCharacter() {
 	cameraComp->SetupAttachment(springArmComp);
 
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
+
+	adsFOV = 65.f;
+	adsInterpSpeed = 20.f;
 }
 
 // Called when the game starts or when spawned
 void ASCharacter::BeginPlay() {
 	Super::BeginPlay();
 	
+	defaultFOV = cameraComp->FieldOfView;
 }
 
 void ASCharacter::MoveForward(float value) {
@@ -43,10 +47,21 @@ void ASCharacter::EndCrouch() {
 	UnCrouch();
 }
 
+void ASCharacter::EnterADS() {
+	ads = true;
+}
+
+void ASCharacter::ExitADS() {
+	ads = false;
+}
+
 // Called every frame
 void ASCharacter::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
+	float targetFOV = ads ? adsFOV : defaultFOV;
+	float newFOV = FMath::FInterpTo(cameraComp->FieldOfView, targetFOV, DeltaTime, adsInterpSpeed);
+	cameraComp->SetFieldOfView(newFOV);
 }
 
 // Called to bind functionality to input
@@ -62,6 +77,9 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASCharacter::EndCrouch);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+
+	PlayerInputComponent->BindAction("ADS", IE_Pressed, this, &ASCharacter::EnterADS);
+	PlayerInputComponent->BindAction("ADS", IE_Released, this, &ASCharacter::ExitADS);
 }
 
 FVector ASCharacter::GetPawnViewLocation() const
