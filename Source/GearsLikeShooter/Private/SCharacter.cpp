@@ -7,7 +7,7 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GearsLikeShooter/GearsLikeShooter.h"
-
+#include "Components/SHealthComponent.h"
 #include "SWeapon.h"
 
 // Sets default values
@@ -21,6 +21,8 @@ ASCharacter::ASCharacter() {
 
 	cameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	cameraComp->SetupAttachment(springArmComp);
+
+	healthComp = CreateDefaultSubobject<USHealthComponent>(TEXT("Health Component"));
 
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
@@ -48,6 +50,8 @@ void ASCharacter::BeginPlay() {
 				weaponAttachSocketName);
 		}
 	}
+
+	healthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 }
 
 void ASCharacter::MoveForward(float value) {
@@ -82,6 +86,20 @@ void ASCharacter::StartFire() {
 void ASCharacter::EndFire() {
 	if (currentWeapon)
 		currentWeapon->StopFire();
+}
+
+void ASCharacter::OnHealthChanged(USHealthComponent* HealthComp, float Health, float HealthDelta,
+	const class UDamageType* DamageType, class AController* InstigatedBy, class AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Health Changed to: %f"), Health);
+	if (!died && Health <= 0.f) {
+		died = true;
+
+		GetMovementComponent()->StopMovementImmediately();
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		DetachFromControllerPendingDestroy();
+		SetLifeSpan(10.f);
+	}
 }
 
 // Called every frame

@@ -26,7 +26,6 @@ void USHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, 
 	if (Damage <= 0.f)
 		return;
 	health = FMath::Clamp(health - Damage, 0.f, maxHealth);
-	UE_LOG(LogTemp, Warning, TEXT("Health Changed to: %f"), health);
 
 	OnHealthChanged.Broadcast(this, health, Damage, DamageType, InstigatedBy, DamageCauser);
 }

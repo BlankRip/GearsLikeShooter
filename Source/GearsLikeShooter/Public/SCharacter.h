@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class USHealthComponent;
 class ASWeapon;
 
 UCLASS()
@@ -35,11 +36,16 @@ protected:
 	void StartFire();
 	void EndFire();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UCameraComponent* cameraComp;
+	UFUNCTION()
+	void OnHealthChanged(USHealthComponent* HealthComp, float Health, float HealthDelta, 
+		const class UDamageType* DamageType, class AController* InstigatedBy, class AActor* DamageCauser);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UCameraComponent* cameraComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* springArmComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USHealthComponent* healthComp;
 
 	ASWeapon* currentWeapon;
 	UPROPERTY(EditDefaultsOnly, Category="Player")
@@ -53,6 +59,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Player", meta=(ClampMin = 0.1f, ClampMax = 100.f))
 	float adsInterpSpeed;
 	float defaultFOV;
+
+	UPROPERTY(BlueprintReadOnly, Category="Player")
+	bool died;
 
 public:	
 	// Called every frame
