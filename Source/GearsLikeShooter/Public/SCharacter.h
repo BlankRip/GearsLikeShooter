@@ -61,7 +61,7 @@ protected:
 	float adsInterpSpeed;
 	float defaultFOV;
 
-	UPROPERTY(BlueprintReadOnly, Category="Player")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category="Player")
 	bool died;
 
 public:	

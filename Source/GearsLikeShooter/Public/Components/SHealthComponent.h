@@ -27,7 +27,7 @@ protected:
 	UFUNCTION()
 	void HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Health Component")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Health Component")
 	float health;	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health Component")
 	float maxHealth;

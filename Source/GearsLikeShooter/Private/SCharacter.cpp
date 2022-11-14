@@ -60,6 +60,7 @@ void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ASCharacter, currentWeapon);
+	DOREPLIFETIME(ASCharacter, died);
 }
 
 void ASCharacter::MoveForward(float value) {
@@ -89,7 +90,6 @@ void ASCharacter::ExitADS() {
 void ASCharacter::StartFire() {
 	if (currentWeapon) {
 		currentWeapon->StartFire();
-
 	}
 	else
 		UE_LOG(LogTemp, Warning, TEXT("WTF"));
