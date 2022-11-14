@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GearsLikeShooter/GearsLikeShooter.h"
 #include "Components/SHealthComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "SWeapon.h"
 
 // Sets default values
@@ -38,20 +39,27 @@ void ASCharacter::BeginPlay() {
 	Super::BeginPlay();
 	
 	defaultFOV = cameraComp->FieldOfView;
+	healthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 
-	if (starterWeaponClass) {
-		FActorSpawnParameters spawnParams;
-		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		currentWeapon = GetWorld()->SpawnActor<ASWeapon>(starterWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, spawnParams);
-		if (currentWeapon) {
-			currentWeapon->SetOwner(this);
-			currentWeapon->AttachToComponent(GetMesh(), 
-				FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-				weaponAttachSocketName);
+	if (GetLocalRole() == ROLE_Authority) {
+		if (starterWeaponClass) {
+			FActorSpawnParameters spawnParams;
+			spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			currentWeapon = GetWorld()->SpawnActor<ASWeapon>(starterWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, spawnParams);
+			if (currentWeapon) {
+				currentWeapon->SetOwner(this);
+				currentWeapon->AttachToComponent(GetMesh(), 
+					FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+					weaponAttachSocketName);
+			}
 		}
 	}
+}
 
-	healthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
+void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASCharacter, currentWeapon);
 }
 
 void ASCharacter::MoveForward(float value) {
@@ -79,8 +87,12 @@ void ASCharacter::ExitADS() {
 }
 
 void ASCharacter::StartFire() {
-	if (currentWeapon)
+	if (currentWeapon) {
 		currentWeapon->StartFire();
+
+	}
+	else
+		UE_LOG(LogTemp, Warning, TEXT("WTF"));
 }
 
 void ASCharacter::EndFire() {

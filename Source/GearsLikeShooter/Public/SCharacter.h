@@ -47,6 +47,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USHealthComponent* healthComp;
 
+	UPROPERTY(Replicated)
 	ASWeapon* currentWeapon;
 	UPROPERTY(EditDefaultsOnly, Category="Player")
 	TSubclassOf<ASWeapon> starterWeaponClass;
@@ -71,5 +72,4 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual FVector GetPawnViewLocation() const override;
-
 };

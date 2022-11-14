@@ -8,7 +8,18 @@
 
 class USkeletalMeshComponent;
 class UParticleSystem;
-//class UCameraShake;
+
+USTRUCT()
+struct FHitScanTrace
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	TEnumAsByte<EPhysicalSurface> surfaceType;
+	UPROPERTY()
+	FVector_NetQuantize traceTo;
+};
 
 UCLASS()
 class GEARSLIKESHOOTER_API ASWeapon : public AActor
@@ -26,7 +37,10 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Fire();
 
-	void PlayImpactEffect(const FHitResult& hit, const EPhysicalSurface& surfaceType);
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerFire();
+
+	void PlayImpactEffect(const FVector& impactPoint, const EPhysicalSurface& surfaceType);
 	void ApplyDamage(const FHitResult& hit, const FVector& shotDirection, const EPhysicalSurface& surfaceType);
 	void PlayFireEffects(const FVector& trailEndPoint);
 
@@ -58,4 +72,9 @@ protected:
 	float timeBtwShots;
 	UPROPERTY(EditDefaultsOnly, Category="Gun Stats")
 	float rateOfFire; //Bullets per minute fired
+
+	UPROPERTY(ReplicatedUsing=OnRep_HitScanTrace)
+	FHitScanTrace hitScanTrace;
+	UFUNCTION()
+	void OnRep_HitScanTrace();
 };
