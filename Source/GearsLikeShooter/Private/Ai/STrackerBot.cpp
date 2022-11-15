@@ -7,6 +7,7 @@
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
 #include "GameFramework/Character.h"
+#include "Components/SHealthComponent.h"
 
 // Sets default values
 ASTrackerBot::ASTrackerBot() {
@@ -18,13 +19,15 @@ ASTrackerBot::ASTrackerBot() {
 	mesh->SetSimulatePhysics(true);
 	RootComponent = mesh;
 
+	healthComp = CreateDefaultSubobject<USHealthComponent>(TEXT("Health Component"));
+	healthComp->OnHealthChanged.AddDynamic(this, &ASTrackerBot::HandleTakeDamage);
+
 	movementForce = 1000.f;
 	requiredDistanceToTarget = 100.f;
 }
 
 // Called when the game starts or when spawned
-void ASTrackerBot::BeginPlay()
-{
+void ASTrackerBot::BeginPlay() {
 	Super::BeginPlay();
 	
 	nextPathPoint = GetNextPathPoint();
@@ -39,9 +42,21 @@ FVector ASTrackerBot::GetNextPathPoint() {
 	return GetActorLocation();
 }
 
-// Called every frame
-void ASTrackerBot::Tick(float DeltaTime)
+void ASTrackerBot::HandleTakeDamage(USHealthComponent* PassedHealthComp, float Health, float HealthDelta,
+	const class UDamageType* DamageType, class AController* InstigatedBy, class AActor* DamageCauser)
 {
+	if(matInst == nullptr)
+		matInst = mesh->CreateDynamicMaterialInstance(0, mesh->GetMaterial(0));
+	if(matInst)
+		matInst->SetScalarParameterValue("LastTimeDmgTaken", GetWorld()->TimeSeconds);
+	if (Health <= 0) {
+
+	}
+	UE_LOG(LogTemp, Log, TEXT("Health %f of %s"), Health, *GetName());
+}
+
+// Called every frame
+void ASTrackerBot::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 	float _distanceToTarget = (GetActorLocation() - nextPathPoint).Size();

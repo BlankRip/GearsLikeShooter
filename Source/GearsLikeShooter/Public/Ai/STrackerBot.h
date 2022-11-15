@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "STrackerBot.generated.h"
 
+class USHealthComponent;
+
 UCLASS()
 class GEARSLIKESHOOTER_API ASTrackerBot : public APawn
 {
@@ -21,8 +23,14 @@ protected:
 
 	FVector GetNextPathPoint();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+	UFUNCTION()
+	void HandleTakeDamage(USHealthComponent* PassedHealthComp, float Health, float HealthDelta,
+		const class UDamageType* DamageType, class AController* InstigatedBy, class AActor* DamageCauser);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UStaticMeshComponent* mesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USHealthComponent* healthComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracker Movement", meta = (AllowPrivateAccess = "true"))
 	float movementForce;
@@ -31,6 +39,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracker Movement", meta = (AllowPrivateAccess = "true"))
 	float requiredDistanceToTarget;
 	FVector nextPathPoint;
+
+	UMaterialInstanceDynamic* matInst;
 
 public:	
 	// Called every frame
