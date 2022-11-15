@@ -8,6 +8,7 @@
 
 class USHealthComponent;
 class USphereComponent;
+class USoundCue;
 
 UCLASS()
 class GEARSLIKESHOOTER_API ASTrackerBot : public APawn
@@ -45,18 +46,24 @@ protected:
 	float requiredDistanceToTarget;
 	FVector nextPathPoint;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FXs")
-	UParticleSystem* explosionEffect;
-	UMaterialInstanceDynamic* matInst;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tracker Stats")
 	float explosionRadius;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tracker Stats")
 	float explostionDamage;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FXs")
+	UParticleSystem* explosionEffect;
+	UMaterialInstanceDynamic* matInst;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FXs")
+	USoundCue* selfDestructSound;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FXs")
+	USoundCue* exploadSound;
+
 	bool isDead;
 
 	FTimerHandle selfDamage_TimerHandle;
+	float selfDamageInterval;
 	bool startedSelfDistruction;
 
 public:	

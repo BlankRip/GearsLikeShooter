@@ -10,6 +10,7 @@
 #include "Components/SHealthComponent.h"
 #include "Components/SphereComponent.h"
 #include "SCharacter.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 ASTrackerBot::ASTrackerBot() {
@@ -36,6 +37,8 @@ ASTrackerBot::ASTrackerBot() {
 
 	explosionRadius = 200.f;
 	explostionDamage = 40.f;
+
+	selfDamageInterval = 0.3f;
 }
 
 // Called when the game starts or when spawned
@@ -54,24 +57,6 @@ FVector ASTrackerBot::GetNextPathPoint() {
 	return GetActorLocation();
 }
 
-void ASTrackerBot::SelfDestruct() {
-	if (isDead)
-		return;
-
-	isDead = true;
-	if(explosionEffect)
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), explosionEffect, GetActorLocation());
-	TArray<AActor*> ignoredActors;
-	ignoredActors.Add(this);
-	UGameplayStatics::ApplyRadialDamage(this, explostionDamage, GetActorLocation(), explosionRadius, 
-		nullptr, ignoredActors, this, GetInstigatorController(), true);
-	Destroy();
-}
-
-void ASTrackerBot::DamageSelf() {
-	UGameplayStatics::ApplyDamage(this, 20, GetInstigatorController(), this, nullptr);
-}
-
 void ASTrackerBot::HandleTakeDamage(USHealthComponent* PassedHealthComp, float Health, float HealthDelta,
 	const class UDamageType* DamageType, class AController* InstigatedBy, class AActor* DamageCauser)
 {
@@ -82,6 +67,21 @@ void ASTrackerBot::HandleTakeDamage(USHealthComponent* PassedHealthComp, float H
 	if (Health <= 0)
 		SelfDestruct();
 	UE_LOG(LogTemp, Log, TEXT("Health %f of %s"), Health, *GetName());
+}
+
+void ASTrackerBot::SelfDestruct() {
+	if (isDead)
+		return;
+
+	isDead = true;
+	if (explosionEffect)
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), explosionEffect, GetActorLocation());
+	TArray<AActor*> ignoredActors;
+	ignoredActors.Add(this);
+	UGameplayStatics::ApplyRadialDamage(this, explostionDamage, GetActorLocation(), explosionRadius,
+		nullptr, ignoredActors, this, GetInstigatorController(), true);
+	UGameplayStatics::PlaySoundAtLocation(this, exploadSound, GetActorLocation());
+	Destroy();
 }
 
 // Called every frame
@@ -105,8 +105,13 @@ void ASTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor) {
 
 	ASCharacter* playerPawn = Cast<ASCharacter>(OtherActor);
 	if (playerPawn) {
-		GetWorldTimerManager().SetTimer(selfDamage_TimerHandle, this, &ASTrackerBot::DamageSelf, 0.5f, true, 0.f);
+		GetWorldTimerManager().SetTimer(selfDamage_TimerHandle, this, &ASTrackerBot::DamageSelf, selfDamageInterval, true, 0.f);
 		startedSelfDistruction = true;
+
+		UGameplayStatics::SpawnSoundAttached(selfDestructSound, RootComponent);
 	}
 }
 
+void ASTrackerBot::DamageSelf() {
+	UGameplayStatics::ApplyDamage(this, 20, GetInstigatorController(), this, nullptr);
+}
