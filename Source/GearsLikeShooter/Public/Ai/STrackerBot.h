@@ -7,6 +7,7 @@
 #include "STrackerBot.generated.h"
 
 class USHealthComponent;
+class USphereComponent;
 
 UCLASS()
 class GEARSLIKESHOOTER_API ASTrackerBot : public APawn
@@ -22,6 +23,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	FVector GetNextPathPoint();
+	void SelfDestruct();
+	void DamageSelf();
 
 	UFUNCTION()
 	void HandleTakeDamage(USHealthComponent* PassedHealthComp, float Health, float HealthDelta,
@@ -31,18 +34,33 @@ protected:
 	UStaticMeshComponent* mesh;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USHealthComponent* healthComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USphereComponent* sphereComp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracker Movement", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracker Stats", meta = (AllowPrivateAccess = "true"))
 	float movementForce;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracker Movement", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracker Stats", meta = (AllowPrivateAccess = "true"))
 	bool useVelocityChange;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracker Movement", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracker Stats", meta = (AllowPrivateAccess = "true"))
 	float requiredDistanceToTarget;
 	FVector nextPathPoint;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FXs")
+	UParticleSystem* explosionEffect;
 	UMaterialInstanceDynamic* matInst;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tracker Stats")
+	float explosionRadius;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tracker Stats")
+	float explostionDamage;
+
+	bool isDead;
+
+	FTimerHandle selfDamage_TimerHandle;
+	bool startedSelfDistruction;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 };
