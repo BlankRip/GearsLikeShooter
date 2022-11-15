@@ -45,7 +45,8 @@ ASTrackerBot::ASTrackerBot() {
 void ASTrackerBot::BeginPlay() {
 	Super::BeginPlay();
 	
-	nextPathPoint = GetNextPathPoint();
+	if(GetLocalRole() == ROLE_Authority)
+		nextPathPoint = GetNextPathPoint();
 }
 
 FVector ASTrackerBot::GetNextPathPoint() {
@@ -76,36 +77,44 @@ void ASTrackerBot::SelfDestruct() {
 	isDead = true;
 	if (explosionEffect)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), explosionEffect, GetActorLocation());
-	TArray<AActor*> ignoredActors;
-	ignoredActors.Add(this);
-	UGameplayStatics::ApplyRadialDamage(this, explostionDamage, GetActorLocation(), explosionRadius,
-		nullptr, ignoredActors, this, GetInstigatorController(), true);
 	UGameplayStatics::PlaySoundAtLocation(this, exploadSound, GetActorLocation());
-	Destroy();
+	mesh->SetVisibility(false, true);
+	mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	if (GetLocalRole() == ROLE_Authority) {
+		TArray<AActor*> ignoredActors;
+		UGameplayStatics::ApplyRadialDamage(this, explostionDamage, GetActorLocation(), explosionRadius,
+			nullptr, ignoredActors, this, GetInstigatorController(), true);
+		ignoredActors.Add(this);
+		SetLifeSpan(2.f);
+	}
 }
 
 // Called every frame
 void ASTrackerBot::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	float _distanceToTarget = (GetActorLocation() - nextPathPoint).Size();
-	if (_distanceToTarget > requiredDistanceToTarget) {
-		FVector _forceDir = nextPathPoint - GetActorLocation();
-		_forceDir.Normalize();
-		_forceDir *= movementForce;
-		mesh->AddForce(_forceDir, NAME_None, useVelocityChange);
-	} else {
-		nextPathPoint = GetNextPathPoint();
+	if (GetLocalRole() == ROLE_Authority && !isDead) {
+		float _distanceToTarget = (GetActorLocation() - nextPathPoint).Size();
+		if (_distanceToTarget > requiredDistanceToTarget) {
+			FVector _forceDir = nextPathPoint - GetActorLocation();
+			_forceDir.Normalize();
+			_forceDir *= movementForce;
+			mesh->AddForce(_forceDir, NAME_None, useVelocityChange);
+		} else {
+			nextPathPoint = GetNextPathPoint();
+		}
 	}
 }
 
 void ASTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor) {
-	if (startedSelfDistruction)
+	if (startedSelfDistruction || isDead)
 		return;
 
 	ASCharacter* playerPawn = Cast<ASCharacter>(OtherActor);
 	if (playerPawn) {
-		GetWorldTimerManager().SetTimer(selfDamage_TimerHandle, this, &ASTrackerBot::DamageSelf, selfDamageInterval, true, 0.f);
+		if(GetLocalRole() == ROLE_Authority)
+			GetWorldTimerManager().SetTimer(selfDamage_TimerHandle, this, &ASTrackerBot::DamageSelf, selfDamageInterval, true, 0.f);
 		startedSelfDistruction = true;
 
 		UGameplayStatics::SpawnSoundAttached(selfDestructSound, RootComponent);

@@ -16,9 +16,11 @@ USHealthComponent::USHealthComponent() {
 void USHealthComponent::BeginPlay() {
 	Super::BeginPlay();
 	
-	AActor* owner = GetOwner();
-	if (owner && owner->GetLocalRole() == ROLE_Authority) {
-		owner->OnTakeAnyDamage.AddDynamic(this, &USHealthComponent::HandleTakeAnyDamage);
+	if (GetOwnerRole() == ROLE_Authority) {
+		AActor* owner = GetOwner();
+		if (owner) {
+			owner->OnTakeAnyDamage.AddDynamic(this, &USHealthComponent::HandleTakeAnyDamage);
+		}
 	}
 	health = maxHealth;
 }
@@ -37,4 +39,9 @@ void USHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, 
 	health = FMath::Clamp(health - Damage, 0.f, maxHealth);
 
 	OnHealthChanged.Broadcast(this, health, Damage, DamageType, InstigatedBy, DamageCauser);
+}
+
+void USHealthComponent::OnRep_Health(float oldHealth) {
+	float _damage = health - oldHealth;
+	OnHealthChanged.Broadcast(this, health, _damage, nullptr, nullptr, nullptr);
 }
