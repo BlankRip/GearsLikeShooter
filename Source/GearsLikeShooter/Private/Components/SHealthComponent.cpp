@@ -45,3 +45,10 @@ void USHealthComponent::OnRep_Health(float oldHealth) {
 	float _damage = health - oldHealth;
 	OnHealthChanged.Broadcast(this, health, _damage, nullptr, nullptr, nullptr);
 }
+
+void USHealthComponent::Heal(float healAmount) {
+	if (health <= 0.f || healAmount <= 0.f)
+		return;
+	health = FMath::Clamp(health + healAmount, 0.f, maxHealth);
+	OnHealthChanged.Broadcast(this, health, -healAmount, nullptr, nullptr, nullptr);
+}

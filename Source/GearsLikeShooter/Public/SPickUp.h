@@ -30,10 +30,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UDecalComponent* decalComp;
 
-	UPROPERTY(EditDefaultsOnly, Category="Power-up Actor")
+	UPROPERTY(EditAnywhere, Category="Power-up Actor")
 	TSubclassOf<ASPowerUp> powerUpClass;
 	ASPowerUp* spawnedPowerUp;
-	UPROPERTY(EditDefaultsOnly, Category = "Power-up Actor")
+	UPROPERTY(EditAnywhere, Category = "Power-up Actor")
 	float cooldownDuration;
 	FTimerHandle respawn_TimerHandle;
 
