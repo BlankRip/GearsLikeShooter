@@ -4,6 +4,8 @@
 #include "SPickUp.h"
 #include "Components/SphereComponent.h"
 #include "Components/DecalComponent.h"
+#include "SPowerUp.h"
+#include "TimerManager.h"
 
 // Sets default values
 ASPickUp::ASPickUp() {
@@ -15,15 +17,36 @@ ASPickUp::ASPickUp() {
 	decalComp->SetRelativeRotation(FRotator(90.f, 0.f, 0.f));
 	decalComp->DecalSize = FVector(64.f, 75.f, 75.f);
 	decalComp->SetupAttachment(RootComponent);
+
+	cooldownDuration = 10.f;
 }
 
 // Called when the game starts or when spawned
 void ASPickUp::BeginPlay() {
 	Super::BeginPlay();
 	
+	Respawn();
+}
+
+void ASPickUp::Respawn() {
+	if (powerUpClass == nullptr) {
+		UE_LOG(LogTemp, Warning, TEXT("Power up call is set to null in %s, update the blueprint"), *GetName());
+		return;
+	}
+
+	FActorSpawnParameters spawnParams;
+	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	spawnedPowerUp = GetWorld()->SpawnActor<ASPowerUp>(powerUpClass, GetTransform(), spawnParams);
 }
 
 void ASPickUp::NotifyActorBeginOverlap(AActor* OtherActor) {
 	Super::NotifyActorBeginOverlap(OtherActor);
+
+	if (spawnedPowerUp) {
+		spawnedPowerUp->ActivatePowerUp();
+		spawnedPowerUp = nullptr;
+
+		GetWorldTimerManager().SetTimer(respawn_TimerHandle, this, &ASPickUp::Respawn, cooldownDuration);
+	}
 }
 
