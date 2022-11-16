@@ -45,7 +45,7 @@ void ASPickUp::NotifyActorBeginOverlap(AActor* OtherActor) {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
 	if (GetLocalRole() == ROLE_Authority && spawnedPowerUp) {
-		spawnedPowerUp->ActivatePowerUp();
+		spawnedPowerUp->ActivatePowerUp(OtherActor);
 		spawnedPowerUp = nullptr;
 
 		GetWorldTimerManager().SetTimer(respawn_TimerHandle, this, &ASPickUp::Respawn, cooldownDuration);
